@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<base xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" type="string">
+  <tags>
+    <tag language="English" />
+  </tags>
+  <strings>
+    <string id="zeeD75C6D0E" text="I want you to lead our clan." />
+    <string id="zee4E3D805F" text="Are you sure? This is a serious change..."/>
+    <string id="zee1E20B79B" text="Yes. I am absolutely sure."/>
+    <string id="zee9065692B" text="Let me check your progress."/>
+    <string id="zeeA3B242F4" text="Do you need new equipment?"/>
+    <string id="zee376CA300" text="Is everything alright?"/>
+    <string id="zee5F9A2B79" text="Yes."/>
+  </strings>
+</base>
