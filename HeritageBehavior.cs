@@ -16,7 +16,7 @@ namespace zenDzeeMods_Heritage
 
         private Hero characterWindowHero = null;
         private MobileParty characterWindowParty = null;
-        List<string> characterWindowEvents = null;
+        private List<string> characterWindowEvents = null;
 
 
         public override void SyncData(IDataStore dataStore)
@@ -102,9 +102,7 @@ namespace zenDzeeMods_Heritage
 
         private void ConsequenceInventoryWindowOpen()
         {
-            PlayerEncounter.LeaveEncounter = true;
             characterWindowHero = Hero.OneToOneConversationHero;
-
             if (Hero.MainHero != null && MobileParty.MainParty != null && characterWindowHero != null)
             {
                 PrepareCharacterWindow_Internal();

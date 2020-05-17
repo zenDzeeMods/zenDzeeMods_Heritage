@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<base xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" type="string">
+  <tags>
+    <tag language="Русский" />
+  </tags>
+  <strings>
+    <string id="zeeD75C6D0E" text="Я хочу, чтобы ты {?NPC.GENDER}возглавила{?}возглавил{\?} наш клан." />
+    <string id="zee4E3D805F" text="Вы уверены? Это серьезное изменение..."/>
+    <string id="zee1E20B79B" text="Да. Я абсолютно {?PLAYER.GENDER}уверена{?}уверен{\?}."/>
+    <string id="zee9065692B" text="Позволь мне проверить твои успехи."/>
+    <string id="zeeA3B242F4" text="Тебе нужна новая экипировка?"/>
+    <string id="zee376CA300" text="Всё ли в порядке?"/>
+    <string id="zee5F9A2B79" text="Да."/>
+  </strings>
+</base>
