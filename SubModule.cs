@@ -14,6 +14,7 @@ namespace zenDzeeMods_Heritage
 
                 campaignStarter.AddBehavior(new HeritageBehavior());
                 campaignStarter.AddBehavior(new HeroFixBehavior());
+                campaignStarter.AddBehavior(new MarriageFixBehavior());
             }
         }
     }
