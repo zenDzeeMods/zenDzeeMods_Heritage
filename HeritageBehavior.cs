@@ -17,6 +17,7 @@ namespace zenDzeeMods_Heritage
         private Hero characterWindowHero = null;
         private MobileParty characterWindowParty = null;
         private List<string> characterWindowEvents = null;
+        private Settlement characterWindowSettlement = null;
 
 
         public override void SyncData(IDataStore dataStore)
@@ -71,6 +72,8 @@ namespace zenDzeeMods_Heritage
 
         private void PrepareCharacterWindow_Internal()
         {
+            characterWindowSettlement = characterWindowHero.StayingInSettlementOfNotable;
+
             characterWindowEvents = new List<string>(characterWindowHero.GetHeroOccupiedEvents());
             string evt;
             while ((evt = characterWindowHero.GetHeroOccupiedEvents().FirstOrDefault()) != default)
@@ -129,6 +132,8 @@ namespace zenDzeeMods_Heritage
                 {
                     characterWindowHero.AddEventForOccupiedHero(e);
                 }
+
+                characterWindowHero.StayingInSettlementOfNotable = characterWindowSettlement;
             }
 
             characterWindowHero = null;
