@@ -68,11 +68,15 @@ namespace zenDzeeMods_Heritage
                 }
             }
             
-            if (sentence.InputToken == lord_propose_marriage_to_clan_leader_options
+            if (sentence.Id == "lord_propose_marriage_conv_general_proposal_2"
+                && sentence.InputToken == lord_propose_marriage_to_clan_leader_options
                 && sentence.OutputToken == lord_propose_marriage_to_clan_leader_response)
             {
                 CharacterObject characterObject = ConversationSentence.LastSelectedRepeatObject as CharacterObject;
-                playerProposalHero = characterObject.HeroObject;
+                if (characterObject != null)
+                {
+                    playerProposalHero = characterObject.HeroObject;
+                }
             }
             else if (sentence.InputToken == lord_propose_marriage_to_clan_leader_response
                 && sentence.OutputToken == lord_propose_marriage_to_clan_leader_response_self)
