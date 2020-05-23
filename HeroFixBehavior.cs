@@ -36,6 +36,12 @@ namespace zenDzeeMods_Heritage
             foreach (Hero child in children)
             {
                 HeroFixHelper.FixHeroStats(child);
+
+                if (child.IsAlive && !child.Mother.IsNoble && child.Father.IsNoble)
+                {
+                    child.IsNoble = true;
+                    child.Clan = child.Father.Clan;
+                }
             }
         }
 
