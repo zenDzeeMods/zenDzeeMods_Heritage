@@ -151,6 +151,12 @@ namespace zenDzeeMods_Heritage
                 MobilePartyHelper.CreateNewClanMobileParty(newLeader, leader.Clan, out _);
             }
 
+            if (leader.PartyBelongedTo != null && leader.PartyBelongedTo.CurrentSettlement != null)
+            {
+                EnterSettlementAction.ApplyForParty(newLeader.PartyBelongedTo, leader.PartyBelongedTo.CurrentSettlement);
+                LeaveSettlementAction.ApplyForParty(leader.PartyBelongedTo);
+            }
+
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnChangeClanLeader);
         }
 
@@ -227,6 +233,7 @@ namespace zenDzeeMods_Heritage
             newLeader.Clan.Influence = Math.Max(0, newLeader.Clan.Influence - 100);
 
             HeroFixHelper.FixHeroStats(newLeader);
+            HeroFixHelper.FixEquipment(newLeader);
 
             newLeader = null;
             leader = null;

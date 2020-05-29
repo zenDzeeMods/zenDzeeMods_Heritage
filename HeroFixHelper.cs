@@ -1,8 +1,8 @@
-﻿using Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.Localization;
 
 namespace zenDzeeMods
 {
@@ -336,31 +336,70 @@ namespace zenDzeeMods
             return true;
         }
 
+        private static PropertyObject HeroFixEquipmentProperty = null;
+
         internal static void FixEquipment(Hero hero)
         {
-            CharacterObject characterObject = null;
+            if (HeroFixEquipmentProperty == null)
+            {
+                HeroFixEquipmentProperty = new PropertyObject("zenDzeeMods_fix_equipment");
+                PropertyObject tmp = ZenDzeeCompatibilityHelper.RegisterPresumedObject(HeroFixEquipmentProperty);
+                if (tmp != null)
+                {
+                    HeroFixEquipmentProperty = tmp;
+                }
+                HeroFixEquipmentProperty.Initialize(new TextObject("zenDzeeMods_fix_equipment"),
+                    new TextObject("Non-zero value - equipment is fixed."));
+            }
+            if (hero.HeroDeveloper.GetPropertyValue(HeroFixEquipmentProperty) != 0)
+            {
+                return;
+            }
+            hero.HeroDeveloper.SetPropertyValue(HeroFixEquipmentProperty, 1);
+
+            Hero sourceHero = null;
+
             if (hero.IsFemale)
             {
                 if (hero.Mother != null)
                 {
-                    characterObject = hero.Mother.CharacterObject;
+                    sourceHero = hero.Mother;
                 }
             }
-            else if (hero.Father != null)
+
+            if (sourceHero == null && hero.Father != null)
             {
-                characterObject = hero.Father.CharacterObject;
-            }
-            if (characterObject == null)
-            {
-                characterObject = hero.CharacterObject;
+                sourceHero = hero.Father;
             }
 
+            if (sourceHero == null)
+            {
+                return;
+            }
 
-            Equipment battleEquipment = characterObject.BattleEquipments.GetRandomElement<Equipment>();
-            EquipmentHelper.AssignHeroEquipmentFromEquipment(hero, battleEquipment);
+            AssignHighTierEquipment(hero.BattleEquipment, sourceHero.BattleEquipment);
+            AssignHighTierEquipment(hero.CivilianEquipment, sourceHero.CivilianEquipment);
+        }
 
-            Equipment civilianEquipment = characterObject.CivilianEquipments.GetRandomElement<Equipment>();
-            EquipmentHelper.AssignHeroEquipmentFromEquipment(hero, civilianEquipment);
+        private static void AssignHighTierEquipment(Equipment heroEquipment, Equipment sourceEquipment)
+        {
+            for (EquipmentIndex equipmentIndex = EquipmentIndex.WeaponItemBeginSlot; equipmentIndex < EquipmentIndex.NumEquipmentSetSlots; ++equipmentIndex)
+            {
+                EquipmentElement sourceElement = sourceEquipment[equipmentIndex];
+                EquipmentElement heroElement = heroEquipment[equipmentIndex];
+
+                if (sourceElement.IsEmpty)
+                {
+                    continue;
+                }
+
+                if (!heroElement.IsEmpty && heroElement.Item.Tier >= sourceElement.Item.Tier)
+                {
+                    continue;
+                }
+
+                heroEquipment[equipmentIndex] = sourceElement;
+            }
         }
     }
 }

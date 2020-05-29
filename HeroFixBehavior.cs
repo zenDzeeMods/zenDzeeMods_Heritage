@@ -24,11 +24,7 @@ namespace zenDzeeMods_Heritage
         private void OnChildGrows(Hero hero)
         {
             HeroFixHelper.FixHeroStats(hero);
-
-            if ((int)hero.BirthDay.ElapsedDaysUntilNow == (int)CampaignTime.Years((float)Campaign.Current.Models.AgeModel.HeroComesOfAge).ToDays)
-            {
-                HeroFixHelper.FixEquipment(hero);
-            }
+            HeroFixHelper.FixEquipment(hero);
         }
         
         private void OnGivenBirth(Hero mother, List<Hero> children, int arg3)
