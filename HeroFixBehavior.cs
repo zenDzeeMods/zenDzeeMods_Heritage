@@ -21,13 +21,13 @@ namespace zenDzeeMods_Heritage
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
         }
 
-        private void OnChildGrows(Hero hero)
+        private static void OnHeroGrows(Hero hero)
         {
             HeroFixHelper.FixHeroStats(hero);
             HeroFixHelper.FixEquipment(hero);
         }
         
-        private void OnGivenBirth(Hero mother, List<Hero> children, int arg3)
+        private static void OnGivenBirth(Hero mother, List<Hero> children, int arg3)
         {
             foreach (Hero child in children)
             {
@@ -49,13 +49,13 @@ namespace zenDzeeMods_Heritage
             }
         }
 
-        private void OnDailyTick()
+        private static void OnDailyTick()
         {
             foreach (Hero hero in Hero.All.Where(h => !h.IsTemplate && !h.IsMinorFactionHero && h.IsNoble))
             {
                 if ((int)hero.BirthDay.ElapsedDaysUntilNow % CampaignTime.DaysInYear == 0)
                 {
-                    OnChildGrows(hero);
+                    OnHeroGrows(hero);
                 }
             }
         }

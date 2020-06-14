@@ -383,17 +383,22 @@ namespace zenDzeeMods
 
         private static void AssignHighTierEquipment(Equipment heroEquipment, Equipment sourceEquipment)
         {
+            if (heroEquipment == null || sourceEquipment == null)
+            {
+                return;
+            }
+
             for (EquipmentIndex equipmentIndex = EquipmentIndex.WeaponItemBeginSlot; equipmentIndex < EquipmentIndex.NumEquipmentSetSlots; ++equipmentIndex)
             {
                 EquipmentElement sourceElement = sourceEquipment[equipmentIndex];
                 EquipmentElement heroElement = heroEquipment[equipmentIndex];
 
-                if (sourceElement.IsEmpty)
+                if (sourceElement.IsEmpty || sourceElement.Item == null)
                 {
                     continue;
                 }
 
-                if (!heroElement.IsEmpty && heroElement.Item.Tier >= sourceElement.Item.Tier)
+                if (!heroElement.IsEmpty && heroElement.Item != null && heroElement.Item.Tier >= sourceElement.Item.Tier)
                 {
                     continue;
                 }
