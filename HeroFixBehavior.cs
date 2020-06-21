@@ -1,12 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.Core;
+using TaleWorlds.Localization;
 using zenDzeeMods;
 
 namespace zenDzeeMods_Heritage
 {
     internal class HeroFixBehavior : CampaignBehaviorBase
     {
+        private PropertyObject HeroFixEquipmentProperty = null;
+
+        public HeroFixBehavior()
+        {
+            HeroFixEquipmentProperty = new PropertyObject("zenDzeeMods_fix_equipment");
+            PropertyObject tmp = ZenDzeeCompatibilityHelper.RegisterPresumedObject(HeroFixEquipmentProperty);
+            if (tmp != null)
+            {
+                HeroFixEquipmentProperty = tmp;
+            }
+            HeroFixEquipmentProperty.Initialize(new TextObject("zenDzeeMods_fix_equipment"),
+                new TextObject("Non-zero value - equipment is fixed."));
+        }
+
         public override void SyncData(IDataStore dataStore)
         {
         }
@@ -14,17 +30,19 @@ namespace zenDzeeMods_Heritage
         public override void RegisterEvents()
         {
             CampaignEvents.OnGivenBirthEvent.AddNonSerializedListener(this, OnGivenBirth);
-            //CampaignEvents.HeroReachesTeenAgeEvent.AddNonSerializedListener(this, OnHeroGrows);
-            //CampaignEvents.HeroGrowsOutOfInfancyEvent.AddNonSerializedListener(this, OnHeroGrows);
-            //CampaignEvents.HeroComesOfAgeEvent.AddNonSerializedListener(this, OnHeroGrows);
-
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
         }
 
-        private static void OnHeroGrows(Hero hero)
+        private void OnHeroGrows(Hero hero)
         {
             HeroFixHelper.FixHeroStats(hero);
-            HeroFixHelper.FixEquipment(hero);
+
+            if (!hero.CharacterObject.IsOriginalCharacter
+                && hero.HeroDeveloper.GetPropertyValue(HeroFixEquipmentProperty) == 0)
+            {
+                hero.HeroDeveloper.SetPropertyValue(HeroFixEquipmentProperty, 1);
+                HeroFixHelper.FixEquipment(hero);
+            }
         }
         
         private static void OnGivenBirth(Hero mother, List<Hero> children, int arg3)
@@ -49,7 +67,7 @@ namespace zenDzeeMods_Heritage
             }
         }
 
-        private static void OnDailyTick()
+        private void OnDailyTick()
         {
             foreach (Hero hero in Hero.All.Where(h => !h.IsTemplate && !h.IsMinorFactionHero && h.IsNoble))
             {

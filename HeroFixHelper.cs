@@ -336,49 +336,47 @@ namespace zenDzeeMods
             return true;
         }
 
-        private static PropertyObject HeroFixEquipmentProperty = null;
-
         internal static void FixEquipment(Hero hero)
         {
-            if (HeroFixEquipmentProperty == null)
-            {
-                HeroFixEquipmentProperty = new PropertyObject("zenDzeeMods_fix_equipment");
-                PropertyObject tmp = ZenDzeeCompatibilityHelper.RegisterPresumedObject(HeroFixEquipmentProperty);
-                if (tmp != null)
-                {
-                    HeroFixEquipmentProperty = tmp;
-                }
-                HeroFixEquipmentProperty.Initialize(new TextObject("zenDzeeMods_fix_equipment"),
-                    new TextObject("Non-zero value - equipment is fixed."));
-            }
-            if (hero.HeroDeveloper.GetPropertyValue(HeroFixEquipmentProperty) != 0)
-            {
-                return;
-            }
-            hero.HeroDeveloper.SetPropertyValue(HeroFixEquipmentProperty, 1);
-
-            Hero sourceHero = null;
+            Hero civilianSourceHero = null;
 
             if (hero.IsFemale)
             {
                 if (hero.Mother != null)
                 {
-                    sourceHero = hero.Mother;
+                    civilianSourceHero = hero.Mother;
                 }
             }
 
-            if (sourceHero == null && hero.Father != null)
+            if (civilianSourceHero == null && hero.Father != null)
             {
-                sourceHero = hero.Father;
+                civilianSourceHero = hero.Father;
             }
 
-            if (sourceHero == null)
+            if (civilianSourceHero == null)
             {
                 return;
             }
 
-            AssignHighTierEquipment(hero.BattleEquipment, sourceHero.BattleEquipment);
-            AssignHighTierEquipment(hero.CivilianEquipment, sourceHero.CivilianEquipment);
+            AssignHighTierEquipment(hero.CivilianEquipment, civilianSourceHero.CivilianEquipment);
+
+            List<Hero> sources;
+            if (hero.IsFemale)
+            {
+                sources = new List<Hero> { hero.Mother, hero.Father };
+            }
+            else
+            {
+                sources = new List<Hero> { hero.Father, hero.Mother };
+            }
+
+            foreach (Hero sourceHero in sources)
+            {
+                if (sourceHero != null)
+                {
+                    AssignHighTierEquipment(hero.BattleEquipment, sourceHero.BattleEquipment);
+                }
+            }
         }
 
         private static void AssignHighTierEquipment(Equipment heroEquipment, Equipment sourceEquipment)
