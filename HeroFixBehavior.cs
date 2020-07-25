@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -9,18 +10,18 @@ namespace zenDzeeMods_Heritage
 {
     internal class HeroFixBehavior : CampaignBehaviorBase
     {
-        private PropertyObject HeroFixEquipmentProperty = null;
-
         public HeroFixBehavior()
         {
-            HeroFixEquipmentProperty = new PropertyObject("zenDzeeMods_fix_equipment");
-            PropertyObject tmp = ZenDzeeCompatibilityHelper.RegisterPresumedObject(HeroFixEquipmentProperty);
+            PropertyObject FixEquipmentProperty = new PropertyObject("zenDzeeMods_fix_equipment");
+            PropertyObject tmp = ZenDzeeCompatibilityHelper.RegisterPresumedObject(FixEquipmentProperty);
             if (tmp != null)
             {
-                HeroFixEquipmentProperty = tmp;
+                FixEquipmentProperty = tmp;
             }
-            HeroFixEquipmentProperty.Initialize(new TextObject("zenDzeeMods_fix_equipment"),
+            FixEquipmentProperty.Initialize(new TextObject("zenDzeeMods_fix_equipment"),
                 new TextObject("Non-zero value - equipment is fixed."));
+
+            HeroFixHelper.HeroFixEquipmentProperty = FixEquipmentProperty;
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -30,21 +31,20 @@ namespace zenDzeeMods_Heritage
         public override void RegisterEvents()
         {
             CampaignEvents.OnGivenBirthEvent.AddNonSerializedListener(this, OnGivenBirth);
-            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
+            CampaignEvents.DailyTickHeroEvent.AddNonSerializedListener(this, OnDailyTick);
         }
 
         private void OnHeroGrows(Hero hero)
         {
             HeroFixHelper.FixHeroStats(hero);
 
-            if (!hero.CharacterObject.IsOriginalCharacter
-                && hero.HeroDeveloper.GetPropertyValue(HeroFixEquipmentProperty) == 0)
+            if (hero.Age > 6f
+                && !hero.CharacterObject.IsOriginalCharacter)
             {
-                hero.HeroDeveloper.SetPropertyValue(HeroFixEquipmentProperty, 1);
                 HeroFixHelper.FixEquipment(hero);
             }
         }
-        
+
         private static void OnGivenBirth(Hero mother, List<Hero> children, int arg3)
         {
             foreach (Hero child in children)
@@ -67,10 +67,17 @@ namespace zenDzeeMods_Heritage
             }
         }
 
-        private void OnDailyTick()
+        private void OnDailyTick(Hero hero)
         {
-            foreach (Hero hero in Hero.All.Where(h => !h.IsTemplate && !h.IsMinorFactionHero && h.IsNoble))
+            if (!hero.IsTemplate && !hero.IsMinorFactionHero && hero.IsNoble)
             {
+                if (hero.IsAlive && (hero.Age - hero.DynamicBodyProperties.Age) > 1f)
+                {
+                    DynamicBodyProperties dp = hero.DynamicBodyProperties;
+                    dp.Age = hero.Age;
+                    hero.DynamicBodyProperties = dp;
+                }
+
                 if ((int)hero.BirthDay.ElapsedDaysUntilNow % CampaignTime.DaysInYear == 0)
                 {
                     OnHeroGrows(hero);

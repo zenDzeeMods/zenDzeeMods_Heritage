@@ -405,4 +405,19 @@ namespace zenDzeeMods
             set { SetByte(ref KeyPart1, 12, value); }
         }
     }
+
+    internal class HairHelper
+    {
+        public static byte MaxHairType(bool isFemale)
+        {
+            if (isFemale)
+            {
+                return 0x13;
+            }
+            else
+            {
+                return 0x19;
+            }
+        }
+    }
 }

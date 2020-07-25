@@ -60,7 +60,7 @@ namespace zenDzeeMods_Heritage
                 null, ConsequenceCharacterWindowClose);
         }
 
-        private bool ConditionOpenCharacterWindow()
+        private static bool ConditionOpenCharacterWindow()
         {
             return Hero.OneToOneConversationHero != null
                 && Clan.PlayerClan != null
@@ -251,12 +251,12 @@ namespace zenDzeeMods_Heritage
                 && (IsMarried(Hero.MainHero, Hero.OneToOneConversationHero) || IsBloodRelated(Hero.MainHero, Hero.OneToOneConversationHero));
         }
 
-        private bool IsBloodRelated(Hero hero1, Hero hero2)
+        private static bool IsBloodRelated(Hero hero1, Hero hero2)
         {
-            return hero1.Siblings.Contains(hero2) || IsChildOf(hero1, hero2) || IsChildOf(hero2, hero1);
+            return hero1.Siblings.Contains(hero2) || IsChildOf(hero1, hero2) || IsChildOf(hero2, hero1) || HaveSameParent(hero1, hero2);
         }
 
-        private bool IsChildOf(Hero hero1, Hero hero2)
+        private static bool IsChildOf(Hero hero1, Hero hero2)
         {
             foreach (Hero child in hero1.Children)
             {
@@ -267,9 +267,14 @@ namespace zenDzeeMods_Heritage
             return false;
         }
 
-        private bool IsMarried(Hero hero1, Hero hero2)
+        private static bool IsMarried(Hero hero1, Hero hero2)
         {
             return (hero1.Spouse == hero2) || (hero2.Spouse == hero1);
+        }
+
+        private static bool HaveSameParent(Hero hero1, Hero hero2)
+        {
+            return (hero1.Father == hero2.Father) || (hero1.Mother == hero2.Mother);
         }
     }
 }

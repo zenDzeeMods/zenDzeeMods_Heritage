@@ -233,6 +233,8 @@ namespace zenDzeeMods
             heroBodySliders.MouthTeethType = GetRandomSliderValue(motherBodySliders.MouthTeethType, fatherBodySliders.MouthTeethType);
             heroBodySliders.MouthWidth = GetRandomSliderValue(motherBodySliders.MouthWidth, fatherBodySliders.MouthWidth);
 
+            heroBodySliders.HairType = GetRandomSliderValue(0, HairHelper.MaxHairType(hero.IsFemale), 0, HairHelper.MaxHairType(hero.IsFemale));
+
             heroBodySliders.EyeColor = ChoseRandomSliderValue(motherBodySliders.EyeColor, fatherBodySliders.EyeColor);
             heroBodySliders.EyeShape = ChoseRandomSliderValue(motherBodySliders.EyeShape, fatherBodySliders.EyeShape);
             heroBodySliders.FaceEarShape = ChoseRandomSliderValue(motherBodySliders.FaceEarShape, fatherBodySliders.FaceEarShape);
@@ -336,8 +338,17 @@ namespace zenDzeeMods
             return true;
         }
 
+        internal static PropertyObject HeroFixEquipmentProperty = null;
+
         internal static void FixEquipment(Hero hero)
         {
+            if (HeroFixEquipmentProperty == null
+                || hero.HeroDeveloper.GetPropertyValue(HeroFixEquipmentProperty) != 0)
+            {
+                return;
+            }
+            hero.HeroDeveloper.SetPropertyValue(HeroFixEquipmentProperty, 1);
+
             Hero civilianSourceHero = null;
 
             if (hero.IsFemale)
@@ -396,9 +407,17 @@ namespace zenDzeeMods
                     continue;
                 }
 
-                if (!heroElement.IsEmpty && heroElement.Item != null && heroElement.Item.Tier >= sourceElement.Item.Tier)
+                if (!heroElement.IsEmpty && heroElement.Item != null)
                 {
-                    continue;
+                    if (heroElement.Item.Type != sourceElement.Item.Type)
+                    {
+                        continue;
+                    }
+
+                    if (heroElement.Item.Tier >= sourceElement.Item.Tier)
+                    {
+                        continue;
+                    }
                 }
 
                 heroEquipment[equipmentIndex] = sourceElement;
