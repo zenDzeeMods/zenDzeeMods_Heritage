@@ -248,7 +248,18 @@ namespace zenDzeeMods_Heritage
                 && Hero.OneToOneConversationHero.Clan == Clan.PlayerClan
                 && Hero.MainHero == Clan.PlayerClan.Leader
                 && Hero.MainHero.PartyBelongedTo != null
-                && (IsMarried(Hero.MainHero, Hero.OneToOneConversationHero) || IsBloodRelated(Hero.MainHero, Hero.OneToOneConversationHero));
+                && (IsFamilyMember(Hero.MainHero, Hero.OneToOneConversationHero) || IsMarried(Hero.MainHero, Hero.OneToOneConversationHero) || IsBloodRelated(Hero.MainHero, Hero.OneToOneConversationHero));
+        }
+
+        private static bool IsFamilyMember(Hero familyHero, Hero hero)
+        {
+            if (familyHero.Clan.Nobles == null
+                || familyHero.Clan.Nobles.IsEmpty())
+            {
+                return false;
+            }
+
+            return familyHero.Clan.Nobles.Contains(hero);
         }
 
         private static bool IsBloodRelated(Hero hero1, Hero hero2)
@@ -274,7 +285,7 @@ namespace zenDzeeMods_Heritage
 
         private static bool HaveSameParent(Hero hero1, Hero hero2)
         {
-            return (hero1.Father == hero2.Father) || (hero1.Mother == hero2.Mother);
+            return (hero1.Father != null && (hero1.Father == hero2.Father)) || (hero1.Mother != null && (hero1.Mother == hero2.Mother));
         }
     }
 }
