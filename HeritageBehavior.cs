@@ -179,6 +179,8 @@ namespace zenDzeeMods_Heritage
                 ChangeGovernorAction.ApplyByGiveUpCurrent(leader);
             }
 
+// Should be fixed by e1.4.3
+#if false
             var qm = Campaign.Current.QuestManager;
             if (qm != null)
             {
@@ -188,6 +190,7 @@ namespace zenDzeeMods_Heritage
                     q.CompleteQuestWithFail();
                 }
             }
+#endif
 
             string evt;
             while ((evt = newLeader.GetHeroOccupiedEvents().FirstOrDefault()) != default)

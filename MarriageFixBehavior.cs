@@ -4,12 +4,16 @@ using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Barterables;
 using System.Text.RegularExpressions;
+using Helpers;
+using TaleWorlds.CampaignSystem.Actions;
 
 namespace zenDzeeMods_Heritage
 {
     internal class MarriageFixBehavior : CampaignBehaviorBase
     {
-        private Hero playerProposalHero = null;
+        private bool shouldJoinPartyAfterOffer = false;
+
+        private Hero playerRelative = null;
         private Hero proposedSpouseForPlayerRelative = null;
 
         // converstion tags
@@ -27,6 +31,17 @@ namespace zenDzeeMods_Heritage
         public override void RegisterEvents()
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.RomanticStateChanged.AddNonSerializedListener(this, OnRomanticStateChanged);
+        }
+
+        private void OnRomanticStateChanged(Hero hero1, Hero hero2, Romance.RomanceLevelEnum toWhat)
+        {
+            if (((playerRelative == hero1 && proposedSpouseForPlayerRelative == hero2)
+                || (playerRelative == hero2 && proposedSpouseForPlayerRelative == hero1))
+                && toWhat == Romance.RomanceLevelEnum.Marriage)
+            {
+                shouldJoinPartyAfterOffer = false;
+            }
         }
 
         private void OnSessionLaunched(CampaignGameStarter gameStarter)
@@ -51,23 +66,28 @@ namespace zenDzeeMods_Heritage
             return !BarterManager.Instance.CanPlayerBarterWithHero(Hero.OneToOneConversationHero);
         }
 
+        private static void RemoveDeadClanMembers(ICollection<Hero> heroes)
+        {
+            if (heroes != null)
+            {
+                Hero del;
+                while ((del = heroes.FirstOrDefault(h => h.IsDead)) != null)
+                {
+                    heroes.Remove(del);
+                }
+            }
+        }
+
         private void OnConsequenceRunnedEvent(ConversationSentence sentence)
         {
             if (sentence.OutputToken == lord_talk_speak_diplomacy_2)
             {
                 // I have no choice but to remove the dead heroes, otherwise
                 // the game will consider them as candidates for marriage.
-                ICollection<Hero> heroes = Hero.OneToOneConversationHero.Clan.Heroes as ICollection<Hero>;
-                if (heroes != null)
-                {
-                    Hero del;
-                    while ((del = heroes.FirstOrDefault(h => h.IsDead)) != null)
-                    {
-                        heroes.Remove(del);
-                    }
-                }
+                RemoveDeadClanMembers(Hero.OneToOneConversationHero.Clan.Lords as ICollection<Hero>);
+                RemoveDeadClanMembers(Hero.MainHero.Clan.Lords as ICollection<Hero>);
             }
-            
+
             if (sentence.Id == "lord_propose_marriage_conv_general_proposal_2"
                 && sentence.InputToken == lord_propose_marriage_to_clan_leader_options
                 && sentence.OutputToken == lord_propose_marriage_to_clan_leader_response)
@@ -75,7 +95,17 @@ namespace zenDzeeMods_Heritage
                 CharacterObject characterObject = ConversationSentence.LastSelectedRepeatObject as CharacterObject;
                 if (characterObject != null)
                 {
-                    playerProposalHero = characterObject.HeroObject;
+                    playerRelative = characterObject.HeroObject;
+
+                    // Bug in MarriageAction:
+                    // if hero in party - party will be disbanded.
+                    // Remove hero temporarily from the MainParty.
+                    if (playerRelative.PartyBelongedTo != null
+                        && playerRelative.PartyBelongedTo == MobileParty.MainParty)
+                    {
+                        MobileParty.MainParty.AddElementToMemberRoster(playerRelative.CharacterObject, -1);
+                        shouldJoinPartyAfterOffer = true;
+                    }
                 }
             }
             else if (sentence.InputToken == lord_propose_marriage_to_clan_leader_response
@@ -85,7 +115,7 @@ namespace zenDzeeMods_Heritage
             }
             else if (sentence.InputToken == lord_propose_marriage_to_clan_leader_response_self
                 && sentence.OutputToken == lord_start_courtship_response
-                && playerProposalHero != null && proposedSpouseForPlayerRelative != null)
+                && playerRelative != null && proposedSpouseForPlayerRelative != null)
             {
                 StartMarriageBarter();
             }
@@ -102,19 +132,28 @@ namespace zenDzeeMods_Heritage
             }
             else if (sentence.InputToken == lord_propose_marriage_to_clan_leader_response_other
                 && sentence.OutputToken == lord_propose_marriage_to_clan_leader_confirm
-                && playerProposalHero != null && proposedSpouseForPlayerRelative != null)
+                && playerRelative != null && proposedSpouseForPlayerRelative != null)
             {
                 StartMarriageBarter();
             }
             else
             {
+                if (shouldJoinPartyAfterOffer
+                    && playerRelative != null
+                    && playerRelative.PartyBelongedTo == null)
+                {
+                    AddHeroToPartyAction.Apply(playerRelative, MobileParty.MainParty);
+                    shouldJoinPartyAfterOffer = false;
+                }
+
                 proposedSpouseForPlayerRelative = null;
-                playerProposalHero = null;
+                playerRelative = null;
             }
         }
 
         private void StartMarriageBarter()
         {
+            shouldJoinPartyAfterOffer = false;
             Hero offererHero = Hero.MainHero;
             MobileParty partyBelongedTo = offererHero.PartyBelongedTo;
             PartyBase offererParty = (partyBelongedTo != null) ? partyBelongedTo.Party : null;
@@ -123,7 +162,7 @@ namespace zenDzeeMods_Heritage
             partyBelongedTo = otherHero.PartyBelongedTo;
             PartyBase otherParty = (partyBelongedTo != null) ? partyBelongedTo.Party : null;
 
-            Barterable barterable = new MarriageBarterable(otherHero, otherParty, proposedSpouseForPlayerRelative, playerProposalHero);
+            Barterable barterable = new MarriageBarterable(otherHero, otherParty, proposedSpouseForPlayerRelative, playerRelative);
             barterable.SetIsOffered(true);
             List<Barterable> offer = new List<Barterable>() { barterable };
 
