@@ -31,7 +31,7 @@ namespace zenDzeeMods_Heritage
         public override void RegisterEvents()
         {
             CampaignEvents.OnGivenBirthEvent.AddNonSerializedListener(this, OnGivenBirth);
-            CampaignEvents.DailyTickHeroEvent.AddNonSerializedListener(this, OnDailyTick);
+            //CampaignEvents.DailyTickHeroEvent.AddNonSerializedListener(this, OnDailyTick);
         }
 
         private void OnHeroGrows(Hero hero)
@@ -67,6 +67,8 @@ namespace zenDzeeMods_Heritage
             }
         }
 
+// Should be fixed by e1.4.3
+#if false
         private void OnDailyTick(Hero hero)
         {
             if (!hero.IsTemplate && !hero.IsMinorFactionHero && hero.IsNoble)
@@ -84,5 +86,6 @@ namespace zenDzeeMods_Heritage
                 }
             }
         }
+#endif
     }
 }

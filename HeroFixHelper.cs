@@ -251,7 +251,7 @@ namespace zenDzeeMods
 
             // note: current version of the game supports DynamicBodyProperties only if character's age is 22+
             // If character under 22 years old, then he cannot be changed via Character CUstomization GUI.
-            BodyProperties newBodyProperties = new BodyProperties(hero.DynamicBodyProperties, heroBodySliders.GetStaticBodyProperties());
+            BodyProperties newBodyProperties = new BodyProperties(hero.BodyProperties.DynamicProperties, heroBodySliders.GetStaticBodyProperties());
 
             BasicCharacterObject tmp = Game.Current.PlayerTroop;
             Game.Current.PlayerTroop = hero.CharacterObject;

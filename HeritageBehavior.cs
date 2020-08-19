@@ -253,13 +253,13 @@ namespace zenDzeeMods_Heritage
 
         private static bool IsFamilyMember(Hero familyHero, Hero hero)
         {
-            if (familyHero.Clan.Nobles == null
-                || familyHero.Clan.Nobles.IsEmpty())
+            if (familyHero.Clan.Lords == null
+                || familyHero.Clan.Lords.IsEmpty())
             {
                 return false;
             }
 
-            return familyHero.Clan.Nobles.Contains(hero);
+            return familyHero.Clan.Lords.Contains(hero);
         }
 
         private static bool IsBloodRelated(Hero hero1, Hero hero2)
